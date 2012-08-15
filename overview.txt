@@ -8,6 +8,7 @@ To Do:
 
   • Back-end Dev --
       • Check user's friend list against all known Iowa user groups
+        • I have been noticing that a number of the user groups do NOT have Facebook groups. Some have pages only. But I don't know that we can get a list of likes on a Facebook page unless we're administrators of the page.
   • On the front-end -- 
       • Section out all user groups
       • Show user group logo

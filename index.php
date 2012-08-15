@@ -47,8 +47,16 @@
 
       
       // Pull and parse the list of members for the list
+//      $grpInfo = getStuff($base_url . $group['id'] . $queryStr);
+//      $group = json_decode($grpInfo, true);
+      
+//      $wgJSON = getStuff($base_url . $group['id'] . "/" . (isset($group['likes']) ? "likes" : "members") . $queryStr);
       $wgJSON = getStuff($base_url . $group['id'] . "/members" . $queryStr);
       $members = json_decode($wgJSON, true);
+      
+//      echo "<pre>";
+//      var_dump($members);
+//      echo "</pre>";
       
       // loop through the members and see if any are on user's friend list
       foreach($members['data'] as $member){
@@ -56,7 +64,7 @@
           $memberFriends = preg_grep_assoc($member['id'], $geeks, 'id'); // if the friend is already in the geeks list, I want to know
           if(sizeof($memberFriends) == 0){ // if the friend is NOT already in the geeks list
             $member['groups'] = array($group["id"]); // then we add an array for groups and put this group in it
-            unset($member['administrator']);
+            unset($member['administrator']); // since we don't need to know if the member is an admin
             $geeks[] = $member; // add the member to the array of geek friends
           }else{ // otherwise, let's update it just a bit
             $memberFriends[0]['groups'][] = $group["id"]; // add this group to the array of groups this member is in.
