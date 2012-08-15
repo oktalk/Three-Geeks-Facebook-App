@@ -27,35 +27,65 @@
     $queryStr = "?access_token=" . $data["oauth_token"];
     
     $frJSON = getStuff($base_url . "me/friends" . $queryStr);
-    $friends = json_decode($frJSON, true);
-
-    $wgJSON = getStuff($base_url . "150666328281650/members" . $queryStr);
-    $members = json_decode($wgJSON, true);
-    
-    $member_ids = array();
-    foreach($members['data'] as $member) {
-    	$member_ids[] = $member['id'];
+    $frs = json_decode($frJSON, true);
+    $friends = array();
+    foreach($frs['data'] as $fr){
+      $friends[] = $fr['id'];
     }
     
+
+    // Read and parse the JSON file containing the geeky groups we want to check
+    $grpJSON = file_get_contents("groups.json");
+    $groups = json_decode($grpJSON, true);
     $geeks = array();
-    foreach($friends['data'] as $friend) {
-    	if(in_array($friend['id'], $member_ids)) {
+    
+    // run through the groups and check the membership against user's friend list
+    foreach($groups as $group){
+      if(!gtg($group["id"], "/^\\d+$/")){ // if I don't have a valid id
+        continue;
+      }
+
+      
+      // Pull and parse the list of members for the list
+      $wgJSON = getStuff($base_url . $group['id'] . "/members" . $queryStr);
+      $members = json_decode($wgJSON, true);
+      
+      // loop through the members and see if any are on user's friend list
+      foreach($members['data'] as $member){
+        if(in_array($member['id'], $friends)){ // if the member is in the friends list
+          $memberFriends = preg_grep_assoc($member['id'], $geeks, 'id'); // if the friend is already in the geeks list, I want to know
+          if(sizeof($memberFriends) == 0){ // if the friend is NOT already in the geeks list
+            $member['groups'] = array($group["id"]); // then we add an array for groups and put this group in it
+            unset($member['administrator']);
+            $geeks[] = $member; // add the member to the array of geek friends
+          }else{ // otherwise, let's update it just a bit
+            $memberFriends[0]['groups'][] = $group["id"]; // add this group to the array of groups this member is in.
+          }
+        }
+      }
+
+/* // the original method plugged the group members ids into an array for searching. We're going to avoid doing this every time by putting the friends list into the array
+      $member_ids = array();
+      foreach($members['data'] as $member) {
+        $member_ids[] = $member['id'];
+      }
+    
+      $geeks = array();
+      foreach($friends['data'] as $friend) {
+      	if(in_array($friend['id'], $member_ids)) {
         	$geeks[] = $friend;
         }
+      }
+*/
     }
     
-    $percentage = sizeof($geeks) / sizeof($friends);
+//    echo "<pre>";
+//    var_dump($geeks);
+//    echo "</pre>";
     
-  }
+    $percentage = (sizeof($geeks) / sizeof($friends)) * 100;
 
 
-function getStuff($url){
-  $ch = curl_init($url);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  $response = curl_exec($ch);
-  curl_close($ch);
-  return $response;
-}
 
 ?>
 <!DOCTYPE html>
@@ -129,3 +159,41 @@ box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, .5);
 </div>
 </body>
 </html>
+
+
+<?php
+  }
+
+
+
+// utility functions
+
+// Use curl to download something from the web and return it as a string
+function getStuff($url){
+  $ch = curl_init($url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  $response = curl_exec($ch);
+  curl_close($ch);
+  return $response;
+}
+
+// Determine whether a var is "Good To Go" by checking if it is (a) set and (b) matches a given regexp (default simply looks for non-whitespace)
+function gtg(){
+  $val = func_get_arg(0);
+  $test = func_num_args() > 1 ? func_get_arg(1) : "/\\S/";
+  return isset($val) && preg_match($test, $val);
+}
+
+// Given an array of associate arrays ($assoc), checks to see if the value of $assoc[$key] matches $pattern
+function preg_grep_assoc($pattern, $arr, $key){
+  $returnArray;
+  if(!preg_match("/^\/.*\/\$/", $pattern)){
+    $pattern = "/^" . $pattern . "\$/";
+  }
+  foreach($arr as $assoc){
+    if(preg_match($pattern, $assoc[$key])){
+      $returnArray[] = $assoc;
+    }
+  }
+  return $returnArray;
+}

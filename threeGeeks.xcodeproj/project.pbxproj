@@ -8,14 +8,24 @@
 
 /* Begin PBXFileReference section */
 		5DCDED2315D9CC3600D603ED /* index.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
+		5DCDED2F15DADEE900D603ED /* groups.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = groups.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		5DCDED1715D9CC1A00D603ED = {
 			isa = PBXGroup;
 			children = (
+				5DCDED2E15DADED900D603ED /* Configuration */,
 				5DCDED2315D9CC3600D603ED /* index.php */,
 			);
+			sourceTree = "<group>";
+		};
+		5DCDED2E15DADED900D603ED /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				5DCDED2F15DADEE900D603ED /* groups.json */,
+			);
+			name = Configuration;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
