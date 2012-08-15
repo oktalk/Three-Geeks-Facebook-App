@@ -1,181 +1,108 @@
 <?php
 
-
-//  print_r($_REQUEST);
-//  exit();
-
-
-  $app_id = "494168277279995";
-  $canvas_page = "http://threegeeks.debraheightswesleyan.org/";
-  $auth_url = "http://www.facebook.com/dialog/oauth?client_id="
-    . $app_id . "&redirect_uri=" . urlencode($canvas_page);
+// Initial setup stuff
+$app_id = "494168277279995";
+$canvas_page = "http://threegeeks.debraheightswesleyan.org/";
+$auth_url = "http://www.facebook.com/dialog/oauth?client_id="
+  . $app_id . "&redirect_uri=" . urlencode($canvas_page);
     
-  $signed_request = $_REQUEST["signed_request"];
-  list($encoded_sig, $payload) = explode('.', $signed_request, 2);
+$signed_request = $_REQUEST["signed_request"];
+list($encoded_sig, $payload) = explode('.', $signed_request, 2);
   
-  $data = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+$data = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
   
-  if(empty($data["user_id"])){
-    echo("<script> top.location.href = '" . $auth_url . "'</script>");
-  }else{
-//    echo("Welcome User: " . $data["user_id"]);
-//    echo("<pre>");
-//    print_r($data["oauth_token"]);
-//    echo("</pre>");
-    
-    $base_url = "https://graph.facebook.com/";
-    $queryStr = "?access_token=" . $data["oauth_token"];
-    
-    $frJSON = getStuff($base_url . "me/friends" . $queryStr);
-    $frs = json_decode($frJSON, true);
-    $friends = array();
-    foreach($frs['data'] as $fr){
-      $friends[] = $fr['id'];
-    }
-    
-
-    // Read and parse the JSON file containing the geeky groups we want to check
-    $grpJSON = file_get_contents("groups.json");
-    $groups = json_decode($grpJSON, true);
-    $geeks = array();
-    
-    // run through the groups and check the membership against user's friend list
-    foreach($groups as $group){
-      if(!gtg($group["id"], "/^\\d+$/")){ // if I don't have a valid id
-        continue;
-      }
-
-      
-      // Pull and parse the list of members for the list
-//      $grpInfo = getStuff($base_url . $group['id'] . $queryStr);
-//      $group = json_decode($grpInfo, true);
-      
-//      $wgJSON = getStuff($base_url . $group['id'] . "/" . (isset($group['likes']) ? "likes" : "members") . $queryStr);
-      $wgJSON = getStuff($base_url . $group['id'] . "/members" . $queryStr);
-      $members = json_decode($wgJSON, true);
-      
-//      echo "<pre>";
-//      var_dump($members);
-//      echo "</pre>";
-      
-      // loop through the members and see if any are on user's friend list
-      foreach($members['data'] as $member){
-        if(in_array($member['id'], $friends)){ // if the member is in the friends list
-          $memberFriends = preg_grep_assoc($member['id'], $geeks, 'id'); // if the friend is already in the geeks list, I want to know
-          if(sizeof($memberFriends) == 0){ // if the friend is NOT already in the geeks list
-            $member['groups'] = array($group["id"]); // then we add an array for groups and put this group in it
-            unset($member['administrator']); // since we don't need to know if the member is an admin
-            $geeks[] = $member; // add the member to the array of geek friends
-          }else{ // otherwise, let's update it just a bit
-            $memberFriends[0]['groups'][] = $group["id"]; // add this group to the array of groups this member is in.
-          }
-        }
-      }
-
-/* // the original method plugged the group members ids into an array for searching. We're going to avoid doing this every time by putting the friends list into the array
-      $member_ids = array();
-      foreach($members['data'] as $member) {
-        $member_ids[] = $member['id'];
-      }
-    
-      $geeks = array();
-      foreach($friends['data'] as $friend) {
-      	if(in_array($friend['id'], $member_ids)) {
-        	$geeks[] = $friend;
-        }
-      }
-*/
-    }
-    
-//    echo "<pre>";
-//    var_dump($geeks);
-//    echo "</pre>";
-    
-    $percentage = (sizeof($geeks) / sizeof($friends)) * 100;
-
-
-
 ?>
 <!DOCTYPE html>
 <html>
-<head>
-<style type="text/css">
-@import url(http://fonts.googleapis.com/css?family=Advent+Pro);
-
-
-body {margin:0;padding:0;
-font:13px/1.5 sans-serif;color:#666;text-shadow: 1px 0px 1px #FFF;
-background:#f4f4f4;
+  <head>
+    <title>Three Geeks DSM Web Geeks Geeky-ness meter</title>
+<?php
+// If the user is not logged in, we redirect to the login page.
+if(empty($data['user_id'])){
+  echo "<script type=\"text/javascript\">top.location.href = '" . $auth_url . "'</script>";
+}else{
 }
-#wrapper {width:80%;margin:auto;}
-#logo {
-  width: 175px;
-  display:block;
-  margin:20px 0;
-}
-#page-title {
-font-size:40px;color:#CB7243; font-family: 'Advent Pro', serif;
-text-shadow: 1px 0px 1px #f01111;    
-}
-#freinds {margin:0;padding:0;list-style:none}
-#freinds li {padding:10px;float:left;background:#EEE;width:100px;
--webkit-box-shadow:inset 0px 0px 5px 0px rgba(255, 255, 255, .5);        
-box-shadow: inset 0px 0px 5px 0px rgba(255, 255, 255, .5);
-    border:1px solid #DDD;align:center;
-}
-#freinds img {display:block;margin:0 auto;padding:0;}
-.photo {
-    border: 1px solid #888;
--webkit-border-radius: 5px;
-border-radius: 5px;
--webkit-box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, .5);        
-box-shadow:  0px 0px 5px 0px rgba(0, 0, 0, .5);
-}
-#freinds li p {display:block;}
-.name {font-size: 18px;}
-</style>
+?>
+    <style>
+      @import url(http://fonts.googleapis.com/css?family=Advent+Pro);
+      @import url(/master.css);
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+<?php
+if(empty($data['user_id'])){ // Let's display a fallback text, just in case they don't have JS enabled for the redirect
+?>
+    <h1>Oops!</h1>
+    <p>You don&apos;t appear to be logged in! If you haven&apos;t been redirected to the login page, <a href="<?php echo $auth_url; ?>">click here now</a>!</p>
+<?php
+}else{ // Now we can get to work!
+  // Initial work
+  $base_url = "https://graph.facebook.com/";
+  $base_q = "?access_token=" . $data['oauth_token'];
+  
+  
+  // get the user's friends list
+  $frs = json_decode(getStuff($base_url . "me/friends" . $base_q), true);
+  $friends = array();
+  foreach($frs['data'] as $friend){
+    $friends[] = $fr['id'];
+  }
+  
+  
+  // Read and parse the JSON file containing the geeky groups we want to check
+  $groups = json_decode(file_get_contents("groups.json"), true);
 
-
-</head><body>
-<div id="wrapper">
-
-
-<img src="http://www.dsmwebgeeks.com/wp-content/themes/dsmweb2012/images/webgeekslogo.png" id="logo">
+  // Run through the groups and check the membership against user's friend list
+  $geeks = array();
+  $listHtml = '';
+  foreach($groups as $group){
+    if(!gtg($group['id'], "/^\\d+$/")){ // if I don't have a valid id
+      continue;
+    }
     
+    $group['memberFriends'] = array();
+    $listHtml .= '<div class="group"><h2 class="groupTitle"><a href="http://www.facebook.com/' . $group['id'] . '">' . $group['name'] . '</a></h2><ul class="groupList">';
+    $members = json_decode(getStuff($base_url . $group['id'] . "/members" . $base_q), true); // get and parse the members list
+    foreach($members['data'] as $member){
+      if(sizeof(preg_grep_assoc($member['id'], $frs['data'], 'id')) > 0){ // if the group member is in the friend list
+        $memberFriends = preg_grep_assoc($member['id'], $geeks, 'id'); // if the friend is already in the geeks list, I want to know!
+        if(sizeof($memberFriends) == 0){ // if the friend is NOT already in the geeks list
+          $member['groups'] = array($group['id']); // the we add an array for groups and put this group in it
+          unset($member['administrator']); // since we don't need to know if the member is an admin
+          $geeks[] = $group['memberFriends'][] = $member; // add the member to the array of geek friends and the group's array of member friends
+        }else{ // else if the friend IS in the geeks list
+          $memberFriends[0]['groups'][] = $group['id']; // add this group to the array of groups this member is in
+          $group['memberFriends'][] = $member; // add this member to the group's array of member friends
+        }
+        
+        // Let's write the html for this
+        $listHtml .= '<li><img src="https://graph.facebook.com/' . $member['id'] . '/picture" class="photo" /><div class="copy"><p class="name"><a href="http://www.facebook.com/' . $member['id'] . '">' . $member['name'] . '</a></p></div></li>';
+      }
+    }
+    $listHtml .= "</ul></div>\n";
+  }
+  
+  $percentage = (sizeof($geeks) / sizeof($friends)) * 100;
+?>
+    <img src="http://www.dsmwebgeeks.com/wp-content/themes/dsmweb2012/images/webgeekslogo.png" id="logo">
     <div id="geek-level">
-        <p>Your friend list is <?php echo number_format($percentage, 2); ?>% geeky.</p>
+      <p>Your friend list is <?php echo number_format($percentage, 2); ?>% geeky.</p>
     </div>
     
     <h1 id="page-title">YourGeekyFriends/</h1>
-    
-    <ul id="freinds">
 <?php
-    foreach($geeks as $geek){
+  echo $listHtml;
+} // And we're done!
 ?>
-        <li>
-        <img src="https://graph.facebook.com/<?php echo $geek['id']; ?>/picture" class="photo">
-        <div class="copy">
-
-           <p class="name"><?php echo $geek['name']; ?></p>
-           
-        </div>            
-        </li>
-<?php
-    }
-?>
-    </ul>
-</div>
-</body>
+    </div>
+  </body>
 </html>
 
 
+
 <?php
-  }
-
-
-
-// utility functions
-
+// Utility functions
 // Use curl to download something from the web and return it as a string
 function getStuff($url){
   $ch = curl_init($url);
@@ -204,4 +131,4 @@ function preg_grep_assoc($pattern, $arr, $key){
     }
   }
   return $returnArray;
-}
+}?>

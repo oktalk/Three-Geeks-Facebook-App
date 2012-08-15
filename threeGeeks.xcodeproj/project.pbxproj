@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		5DCDED2315D9CC3600D603ED /* index.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
+		5DCDED2315D9CC3600D603ED /* index~.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = "index~.php"; sourceTree = "<group>"; };
 		5DCDED2F15DADEE900D603ED /* groups.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = groups.json; sourceTree = "<group>"; };
+		5DCDED9E15DC1E8700D603ED /* index.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; path = index.php; sourceTree = "<group>"; };
+		5DCDEDA115DC2E8400D603ED /* master.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = master.css; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -16,7 +18,9 @@
 			isa = PBXGroup;
 			children = (
 				5DCDED2E15DADED900D603ED /* Configuration */,
-				5DCDED2315D9CC3600D603ED /* index.php */,
+				5DCDED2315D9CC3600D603ED /* index~.php */,
+				5DCDED9E15DC1E8700D603ED /* index.php */,
+				5DCDEDA115DC2E8400D603ED /* master.css */,
 			);
 			sourceTree = "<group>";
 		};
