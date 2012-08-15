@@ -11,17 +11,28 @@ list($encoded_sig, $payload) = explode('.', $signed_request, 2);
   
 $data = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
   
+
+
+
 ?>
 <!DOCTYPE html>
 <html>
   <head>
     <title>Three Geeks DSM Web Geeks Geeky-ness meter</title>
 <?php
+
+
+
+
 // If the user is not logged in, we redirect to the login page.
 if(empty($data['user_id'])){
   echo "<script type=\"text/javascript\">top.location.href = '" . $auth_url . "'</script>";
 }else{
 }
+
+
+
+
 ?>
     <style>
       @import url(http://fonts.googleapis.com/css?family=Advent+Pro);
@@ -31,11 +42,23 @@ if(empty($data['user_id'])){
   <body>
     <div id="wrapper">
 <?php
+
+
+
+
 if(empty($data['user_id'])){ // Let's display a fallback text, just in case they don't have JS enabled for the redirect
+
+
+
+
 ?>
     <h1>Oops!</h1>
     <p>You don&apos;t appear to be logged in! If you haven&apos;t been redirected to the login page, <a href="<?php echo $auth_url; ?>">click here now</a>!</p>
 <?php
+
+
+
+
 }else{ // Now we can get to work!
   // Initial work
   $base_url = "https://graph.facebook.com/";
@@ -84,25 +107,35 @@ if(empty($data['user_id'])){ // Let's display a fallback text, just in case they
   }
   
   $percentage = (sizeof($geeks) / sizeof($friends)) * 100;
+
+
+
 ?>
     <img src="http://www.dsmwebgeeks.com/wp-content/themes/dsmweb2012/images/webgeekslogo.png" id="logo">
     <div id="geek-level">
-      <p>Your friend list is <?php echo number_format($percentage, 2); ?>% geeky.</p>
+      <p>Your friend list is <?php echo number_format($percentage, 2); ?>% (<?php echo sizeof($geeks) . " / " . sizeof($frs['data']); ?>) geeky.</p>
     </div>
     
     <h1 id="page-title">YourGeekyFriends/</h1>
 <?php
+
+
   echo $listHtml;
 } // And we're done!
+
+
 ?>
     </div>
   </body>
 </html>
-
-
-
 <?php
+
+
+
+
 // Utility functions
+
+
 // Use curl to download something from the web and return it as a string
 function getStuff($url){
   $ch = curl_init($url);
@@ -131,4 +164,6 @@ function preg_grep_assoc($pattern, $arr, $key){
     }
   }
   return $returnArray;
-}?>
+}
+
+?>
