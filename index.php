@@ -1,7 +1,7 @@
 <?php
 
 // Initial setup stuff
-$app_id = "494168277279995";
+$app_id = "###";
 $canvas_page = "http://threegeeks.debraheightswesleyan.org/";
 $auth_url = "http://www.facebook.com/dialog/oauth?client_id="
   . $app_id . "&redirect_uri=" . urlencode($canvas_page);
